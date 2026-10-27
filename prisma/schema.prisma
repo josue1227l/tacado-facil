@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  nome         String
+  email        String   @unique
+  senha        String
+  tipo         String   @default("CLIENTE")
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  pedidos Pedido[]
+}
+
+model Categoria {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique
+  descricao String?
+  produtos  Produto[]
+  criadoEm  DateTime  @default(now())
+}
+
+model Produto {
+  id            Int     @id @default(autoincrement())
+  nome          String
+  descricao     String?
+  codigo        String  @unique
+  preco         Float
+  estoque       Int     @default(0)
+  estoqueMinimo Int     @default(5)
+  unidade       String  @default("UN")
+  ativo         Boolean @default(true)
+
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+
+  itensPedido ItemPedido[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+model Pedido {
+  id           Int          @id @default(autoincrement())
+  usuarioId    Int
+  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
+  status       String       @default("PENDENTE")
+  total        Float        @default(0)
+  itens        ItemPedido[]
+  criadoEm     DateTime     @default(now())
+  atualizadoEm DateTime     @updatedAt
+}
+
+model ItemPedido {
+  id            Int   @id @default(autoincrement())
+  pedidoId      Int
+  produtoId     Int
+  quantidade    Int
+  precoUnitario Float
+
+  pedido  Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id])
+
+  @@unique([pedidoId, produtoId])
+}
