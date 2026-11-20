@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atacado Fácil - Feira de Ciências</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        .pagina-feira {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .cabecalho-feira {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .cabecalho-feira h1 {
+            color: #166534;
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .cabecalho-feira p {
+            color: #666;
+            font-size: 17px;
+        }
+
+        .opcoes-feira {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .opcao-feira {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .opcao-feira h2 {
+            color: #166534;
+            margin-bottom: 12px;
+        }
+
+        .opcao-feira p {
+            color: #666;
+            line-height: 1.5;
+            min-height: 50px;
+        }
+
+        .botao-feira {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 7px;
+            background: #15803d;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .botao-feira:hover {
+            background: #166534;
+        }
+
+        .botao-admin {
+            background: #374151;
+        }
+
+        .botao-admin:hover {
+            background: #1f2937;
+        }
+
+        .rodape-feira {
+            text-align: center;
+            color: #888;
+            margin-top: 35px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="pagina-feira">
+
+        <header class="cabecalho-feira">
+            <h1>Atacado Fácil</h1>
+            <p>Sua experiência de compra começa aqui!</p>
+            <p>Conheça nosso sistema de gestão de atacado.</p>
+        </header>
+
+        <section class="opcoes-feira">
+
+            <article class="opcao-feira">
+                <h2>Conheça o sistema</h2>
+
+                <p>
+                    Explore os produtos, monte seu carrinho
+                    e experimente uma compra fictícia.
+                </p>
+
+                <a href="/demonstracao" class="botao-feira">
+                    Começar demonstração
+                </a>
+
+            </article>
+
+            <article class="opcao-feira">
+                <h2>Área administrativa</h2>
+
+                <p>
+                    Acesso exclusivo para administradores
+                    e usuários cadastrados no sistema.
+                </p>
+
+                <a href="/login" class="botao-feira botao-admin">
+                    Acessar painel
+                </a>
+            </article>
+
+        </section>
+
+        <footer class="rodape-feira">
+            <p>Projeto Atacado Fácil — Feira de Ciências</p>
+        </footer>
+
+    </main>
+</body>
+
+</html>

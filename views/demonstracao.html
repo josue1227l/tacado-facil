@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atacado Fácil - Demonstração</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        .pagina-demonstracao {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .cabecalho-demo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .cabecalho-demo h1 {
+            color: #166534;
+            margin: 0;
+        }
+
+        .botao-voltar {
+            background: #374151;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .conteudo-demo {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .catalogo-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+        }
+
+        .produto-demo {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .produto-demo h3 {
+            color: #166534;
+            margin-top: 0;
+        }
+
+        .preco-demo {
+            color: #15803d;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .botao-adicionar,
+        .botao-finalizar {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #15803d;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .botao-adicionar:hover,
+        .botao-finalizar:hover {
+            background: #166534;
+        }
+
+        .carrinho-demo {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 20px;
+        }
+
+        .item-carrinho {
+            border-bottom: 1px solid #ddd;
+            padding: 12px 0;
+        }
+
+        .item-carrinho button {
+            margin: 5px 3px;
+            padding: 5px 9px;
+            cursor: pointer;
+        }
+
+        .total-demo {
+            color: #15803d;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .botao-finalizar:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .mensagem-demo {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .tela-finalizacao {
+            display: none;
+            background: white;
+            padding: 35px;
+            margin-top: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .tela-finalizacao h2 {
+            color: #166534;
+        }
+
+        @media (max-width: 750px) {
+            .conteudo-demo {
+                grid-template-columns: 1fr;
+            }
+
+            .carrinho-demo {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="pagina-demonstracao">
+
+        <header class="cabecalho-demo">
+            <div>
+                <h1>Atacado Fácil</h1>
+                <p>Modo Demonstração — Feira de Ciências</p>
+            </div>
+
+            <a href="/" class="botao-voltar">Voltar ao início</a>
+        </header>
+
+        <section id="areaCompras">
+            <h2>Escolha seus produtos</h2>
+            <p>Explore o catálogo e adicione produtos ao seu carrinho.</p>
+
+            <p id="mensagemCatalogo" class="mensagem-demo"></p>
+
+            <div class="conteudo-demo">
+
+                <div id="catalogoProdutos" class="catalogo-demo">
+                    <p>Carregando produtos...</p>
+                </div>
+
+                <aside class="carrinho-demo">
+                    <h2>Meu carrinho</h2>
+
+                    <div id="itensCarrinho">
+                        <p>Seu carrinho está vazio.</p>
+                    </div>
+
+                    <p class="total-demo">
+                        Total: <span id="totalCarrinho">R$ 0,00</span>
+                    </p>
+
+                    <button
+                        type="button"
+                        id="botaoFinalizar"
+                        class="botao-finalizar"
+                        disabled
+                    >
+                        Finalizar compra
+                    </button>
+                </aside>
+
+            </div>
+        </section>
+
+        <section id="telaFinalizacao" class="tela-finalizacao">
+            <h2>Compra simulada com sucesso!</h2>
+
+            <p>Obrigado por conhecer o Atacado Fácil.</p>
+            <p id="resumoCompra"></p>
+
+            <button
+                type="button"
+                id="botaoReiniciar"
+                class="botao-finalizar"
+            >
+                Nova demonstração
+            </button>
+
+            <a href="/" class="botao-voltar">Voltar ao início</a>
+        </section>
+
+    </main>
+
+    <script src="/js/demonstracao.js"></script>
+</body>
+</html>
