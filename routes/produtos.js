@@ -1,11 +1,90 @@
-
 const express = require('express');
 const prisma = require('../lib/prisma');
 const { requireAdmin } = require('../middleware/auth');
 
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+
 const router = express.Router();
 
-// Listar produtos
+// ==================== CONFIGURAÇÃO DAS IMAGENS ====================
+
+const pastaUploads = path.join(__dirname, '..', 'public', 'uploads');
+
+fs.mkdirSync(pastaUploads, { recursive: true });
+
+const extensoesPermitidas = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp'
+};
+
+const armazenamento = multer.diskStorage({
+    destination: (req, arquivo, callback) => {
+        callback(null, pastaUploads);
+    },
+
+    filename: (req, arquivo, callback) => {
+        const extensao = extensoesPermitidas[arquivo.mimetype];
+        callback(null, crypto.randomUUID() + extensao);
+    }
+});
+
+const upload = multer({
+    storage: armazenamento,
+
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    },
+
+    fileFilter: (req, arquivo, callback) => {
+        if (!extensoesPermitidas[arquivo.mimetype]) {
+            return callback(
+                new Error('Envie uma imagem JPG, PNG ou WEBP.')
+            );
+        }
+
+        callback(null, true);
+    }
+});
+
+// Receber imagem e tratar erros do upload
+function receberImagem(req, res, next) {
+    upload.single('imagem')(req, res, erro => {
+        if (erro) {
+            return res.status(400).json({
+                erro: erro.code === 'LIMIT_FILE_SIZE'
+                    ? 'A imagem deve ter no máximo 5 MB.'
+                    : erro.message
+            });
+        }
+
+        next();
+    });
+}
+
+// Remover imagem salva no servidor
+async function removerImagem(imagem) {
+    if (!imagem || !imagem.startsWith('/uploads/')) {
+        return;
+    }
+
+    const nomeArquivo = path.basename(imagem);
+    const caminho = path.join(pastaUploads, nomeArquivo);
+
+    try {
+        await fs.promises.unlink(caminho);
+    } catch (erro) {
+        if (erro.code !== 'ENOENT') {
+            console.error('Erro ao remover imagem:', erro);
+        }
+    }
+}
+
+// ==================== LISTAR PRODUTOS ====================
+
 router.get('/', async (req, res) => {
     try {
         const produtos = await prisma.produto.findMany({
@@ -27,8 +106,9 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Cadastrar produto - somente administrador
-router.post('/', requireAdmin, async (req, res) => {
+// ==================== CADASTRAR PRODUTO ====================
+
+router.post('/', requireAdmin, receberImagem, async (req, res) => {
     try {
         const {
             nome,
@@ -95,8 +175,12 @@ router.post('/', requireAdmin, async (req, res) => {
                 estoque: estoqueNumero,
                 estoqueMinimo: estoqueMinimoNumero,
                 unidade: unidade?.trim() || 'UN',
-                categoriaId: categoriaIdNumero
+                categoriaId: categoriaIdNumero,
+                imagem: req.file
+                    ? `/uploads/${req.file.filename}`
+                    : null
             },
+
             include: {
                 categoria: true
             }
@@ -106,8 +190,13 @@ router.post('/', requireAdmin, async (req, res) => {
             mensagem: 'Produto cadastrado com sucesso.',
             produto
         });
+
     } catch (erro) {
         console.error('Erro ao cadastrar produto:', erro);
+
+        if (req.file) {
+            await removerImagem(`/uploads/${req.file.filename}`);
+        }
 
         if (erro.code === 'P2002') {
             return res.status(409).json({
@@ -121,8 +210,9 @@ router.post('/', requireAdmin, async (req, res) => {
     }
 });
 
-// Editar produto - somente administrador
-router.put('/:id', requireAdmin, async (req, res) => {
+// ==================== EDITAR PRODUTO ====================
+
+router.put('/:id', requireAdmin, receberImagem, async (req, res) => {
     try {
         const id = Number(req.params.id);
 
@@ -241,6 +331,11 @@ router.put('/:id', requireAdmin, async (req, res) => {
             dados.categoriaId = valor;
         }
 
+        // Só altera a imagem se uma nova for enviada
+        if (req.file) {
+            dados.imagem = `/uploads/${req.file.filename}`;
+        }
+
         const produto = await prisma.produto.update({
             where: { id },
             data: dados,
@@ -249,12 +344,22 @@ router.put('/:id', requireAdmin, async (req, res) => {
             }
         });
 
+        // Remove a imagem antiga depois da atualização
+        if (req.file && existente.imagem) {
+            await removerImagem(existente.imagem);
+        }
+
         res.json({
             mensagem: 'Produto atualizado com sucesso.',
             produto
         });
+
     } catch (erro) {
         console.error('Erro ao atualizar produto:', erro);
+
+        if (req.file) {
+            await removerImagem(`/uploads/${req.file.filename}`);
+        }
 
         if (erro.code === 'P2002') {
             return res.status(409).json({
@@ -268,8 +373,8 @@ router.put('/:id', requireAdmin, async (req, res) => {
     }
 });
 
+// ==================== EXCLUIR PRODUTO ====================
 
-// Excluir produto - somente administrador
 router.delete('/:id', requireAdmin, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -296,7 +401,6 @@ router.delete('/:id', requireAdmin, async (req, res) => {
             });
         }
 
-        // Não excluir produtos que fazem parte do histórico de pedidos
         if (produto.itensPedido.length > 0) {
             return res.status(409).json({
                 erro: 'Este produto já faz parte de um pedido e não pode ser excluído. Você pode editar o produto ou deixá-lo indisponível.'
@@ -307,9 +411,14 @@ router.delete('/:id', requireAdmin, async (req, res) => {
             where: { id }
         });
 
+        if (produto.imagem) {
+            await removerImagem(produto.imagem);
+        }
+
         res.json({
             mensagem: 'Produto excluído com sucesso.'
         });
+
     } catch (erro) {
         console.error('Erro ao excluir produto:', erro);
 
@@ -319,8 +428,8 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     }
 });
 
+// ==================== ATIVAR OU DESATIVAR ====================
 
-// Ativar ou desativar produto - somente administrador
 router.patch('/:id/ativo', requireAdmin, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -358,6 +467,7 @@ router.patch('/:id/ativo', requireAdmin, async (req, res) => {
                 ? 'Produto reativado com sucesso.'
                 : 'Produto desativado com sucesso.'
         });
+
     } catch (erro) {
         console.error('Erro ao alterar situação do produto:', erro);
 

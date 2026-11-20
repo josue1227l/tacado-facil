@@ -11,6 +11,73 @@ const botaoReiniciar = document.getElementById('botaoReiniciar');
 let produtos = [];
 let carrinho = [];
 
+// Imagens ilustrativas por categoria (usadas como alternativa)
+const imagensCategorias = {
+    'mercearia': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500',
+    'bebidas': 'https://images.unsplash.com/photo-1532634896-26909d0d4b74?w=500',
+    'limpeza': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=500',
+    'açougue': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=500',
+    'frios': 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=500',
+    'hortifruti': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500'
+};
+
+// Estilo dos grupos e imagens
+const estilo = document.createElement('style');
+
+estilo.textContent = `
+    .grupo-categoria {
+        margin-bottom: 30px;
+    }
+
+    .titulo-categoria {
+        color: #166534;
+        font-size: 23px;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #dcfce7;
+    }
+
+    .lista-produtos-demo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 18px;
+    }
+
+    .produto-demo {
+        background: white;
+        border-radius: 10px;
+        padding: 14px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .imagem-produto-demo {
+        width: 100%;
+        height: 135px;
+        object-fit: cover;
+        border-radius: 7px;
+        margin-bottom: 10px;
+        background: #f3f4f6;
+    }
+
+    .produto-demo h3 {
+        margin: 5px 0;
+        color: #166534;
+    }
+
+    .produto-demo p {
+        margin: 6px 0;
+    }
+
+    .preco-demo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #15803d;
+    }
+`;
+
+document.head.appendChild(estilo);
+
 function formatarPreco(preco) {
     return Number(preco).toLocaleString('pt-BR', {
         style: 'currency',
@@ -34,7 +101,7 @@ function mostrarMensagem(texto, erro = false) {
     mensagemCatalogo.style.color = erro ? '#dc2626' : '#15803d';
 }
 
-// Carregar produtos sem exigir login
+// Carregar catálogo e separar produtos por categoria
 async function carregarCatalogo() {
     try {
         const resposta = await fetch('/api/produtos');
@@ -57,54 +124,123 @@ async function carregarCatalogo() {
             return;
         }
 
+        // Agrupar produtos por categoria
+        const grupos = {};
+
         produtos.forEach(produto => {
-            const card = document.createElement('article');
-            card.className = 'produto-demo';
+            const categoria = produto.categoria?.nome || 'Outros';
 
-            card.appendChild(criarElemento('h3', produto.nome));
-
-            if (produto.descricao) {
-                card.appendChild(
-                    criarElemento('p', produto.descricao)
-                );
+            if (!grupos[categoria]) {
+                grupos[categoria] = [];
             }
 
-            card.appendChild(
-                criarElemento(
-                    'p',
-                    `Categoria: ${produto.categoria?.nome || 'Sem categoria'}`
-                )
+            grupos[categoria].push(produto);
+        });
+
+        // Ordem das categorias
+        const ordemCategorias = [
+            'Mercearia',
+            'Bebidas',
+            'Limpeza',
+            'Açougue',
+            'Frios',
+            'Hortifruti'
+        ];
+
+        const categoriasOrdenadas = Object.keys(grupos).sort((a, b) => {
+            const posicaoA = ordemCategorias.indexOf(a);
+            const posicaoB = ordemCategorias.indexOf(b);
+
+            return (posicaoA === -1 ? 99 : posicaoA) -
+                   (posicaoB === -1 ? 99 : posicaoB);
+        });
+
+        categoriasOrdenadas.forEach(categoria => {
+            // Área da categoria
+            const grupo = document.createElement('section');
+            grupo.className = 'grupo-categoria';
+
+            grupo.appendChild(
+                criarElemento('h2', categoria, 'titulo-categoria')
             );
 
-            card.appendChild(
-                criarElemento(
-                    'p',
-                    formatarPreco(produto.preco),
-                    'preco-demo'
-                )
-            );
+            const lista = document.createElement('div');
+            lista.className = 'lista-produtos-demo';
 
-            card.appendChild(
-                criarElemento(
-                    'p',
-                    `Disponível: ${produto.estoque} ${produto.unidade}`
-                )
-            );
+            grupos[categoria].forEach(produto => {
+                const card = document.createElement('article');
+                card.className = 'produto-demo';
 
-            const botao = criarElemento(
-                'button',
-                'Adicionar ao carrinho',
-                'botao-adicionar'
-            );
+                // Imagem individual do produto
+                const imagem = document.createElement('img');
+                const chaveCategoria = categoria.toLowerCase();
 
-            botao.type = 'button';
+                const imagemCategoria =
+                    imagensCategorias[chaveCategoria] ||
+                    imagensCategorias['mercearia'];
 
-            botao.addEventListener('click', () => {
-                adicionarAoCarrinho(produto.id);
+                // Prioriza a imagem cadastrada no painel
+                imagem.src = produto.imagem || imagemCategoria;
+
+                imagem.alt = produto.nome;
+                imagem.className = 'imagem-produto-demo';
+                imagem.loading = 'lazy';
+
+                // Se a imagem cadastrada não carregar,
+                // utiliza a imagem ilustrativa da categoria
+                imagem.onerror = () => {
+                    if (imagem.src !== imagemCategoria) {
+                        imagem.src = imagemCategoria;
+                    } else {
+                        imagem.style.display = 'none';
+                    }
+                };
+
+                card.appendChild(imagem);
+
+                card.appendChild(
+                    criarElemento('h3', produto.nome)
+                );
+
+                if (produto.descricao) {
+                    card.appendChild(
+                        criarElemento('p', produto.descricao)
+                    );
+                }
+
+                card.appendChild(
+                    criarElemento(
+                        'p',
+                        formatarPreco(produto.preco),
+                        'preco-demo'
+                    )
+                );
+
+                card.appendChild(
+                    criarElemento(
+                        'p',
+                        `Disponível: ${produto.estoque} ${produto.unidade}`
+                    )
+                );
+
+                const botao = criarElemento(
+                    'button',
+                    'Adicionar ao carrinho',
+                    'botao-adicionar'
+                );
+
+                botao.type = 'button';
+
+                botao.addEventListener('click', () => {
+                    adicionarAoCarrinho(produto.id);
+                });
+
+                card.appendChild(botao);
+                lista.appendChild(card);
             });
 
-            card.appendChild(botao);
-            catalogoProdutos.appendChild(card);
+            grupo.appendChild(lista);
+            catalogoProdutos.appendChild(grupo);
         });
 
     } catch (erro) {

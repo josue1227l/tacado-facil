@@ -24,12 +24,17 @@ const statusPedidos = [
 ];
 
 async function requisicao(url, opcoes = {}) {
+    const ehFormData = opcoes.body instanceof FormData;
+
+    const headers = { ...opcoes.headers };
+
+    if (!ehFormData) {
+        headers['Content-Type'] = 'application/json';
+    }
+
     const resposta = await fetch(url, {
         ...opcoes,
-        headers: {
-            'Content-Type': 'application/json',
-            ...opcoes.headers
-        }
+        headers
     });
 
     const dados = await resposta.json().catch(() => ({}));
@@ -266,33 +271,25 @@ formProduto.addEventListener('submit', async evento => {
 
     const id = document.getElementById('produtoId').value;
 
-    const dados = {
-        nome: document.getElementById('produtoNome').value.trim(),
-        codigo: document.getElementById('produtoCodigo').value.trim(),
-        descricao: document.getElementById('produtoDescricao').value.trim(),
-        preco: Number(document.getElementById('produtoPreco').value),
-        estoque: Number(document.getElementById('produtoEstoque').value),
-        estoqueMinimo: Number(
-            document.getElementById('produtoEstoqueMinimo').value
-        ),
-        unidade: document.getElementById('produtoUnidade').value,
-        categoriaId: Number(selectCategoria.value)
-    };
+    const dados = new FormData();
 
-    if (!dados.categoriaId) {
-        mostrarMensagem('Selecione uma categoria.', true);
-        return;
+    dados.append('nome', document.getElementById('produtoNome').value.trim());
+    dados.append('codigo', document.getElementById('produtoCodigo').value.trim());
+    dados.append('descricao', document.getElementById('produtoDescricao').value.trim());
+    dados.append('preco', document.getElementById('produtoPreco').value);
+    dados.append('estoque', document.getElementById('produtoEstoque').value);
+    dados.append('estoqueMinimo', document.getElementById('produtoEstoqueMinimo').value);
+    dados.append('unidade', document.getElementById('produtoUnidade').value);
+    dados.append('categoriaId', selectCategoria.value);
+
+    const arquivoImagem = document.getElementById('produtoImagem').files[0];
+
+    if (arquivoImagem) {
+        dados.append('imagem', arquivoImagem);
     }
 
-    if (
-        !Number.isFinite(dados.preco) ||
-        dados.preco <= 0 ||
-        !Number.isInteger(dados.estoque) ||
-        dados.estoque < 0 ||
-        !Number.isInteger(dados.estoqueMinimo) ||
-        dados.estoqueMinimo < 0
-    ) {
-        mostrarMensagem('Confira o preço e as quantidades informadas.', true);
+    if (!selectCategoria.value) {
+        mostrarMensagem('Selecione uma categoria.', true);
         return;
     }
 
@@ -301,17 +298,19 @@ formProduto.addEventListener('submit', async evento => {
             id ? `/api/produtos/${id}` : '/api/produtos',
             {
                 method: id ? 'PUT' : 'POST',
-                body: JSON.stringify(dados)
+                body: dados
             }
         );
 
         formProduto.reset();
+
         document.getElementById('produtoId').value = '';
         document.getElementById('produtoEstoque').value = '0';
         document.getElementById('produtoEstoqueMinimo').value = '5';
 
         document.getElementById('btnSalvarProduto').textContent =
             'Cadastrar produto';
+
         document.getElementById('btnCancelarProduto').hidden = true;
 
         await carregarProdutos();
@@ -330,13 +329,18 @@ function editarProduto(produto) {
     document.getElementById('produtoDescricao').value = produto.descricao || '';
     document.getElementById('produtoPreco').value = produto.preco;
     document.getElementById('produtoEstoque').value = produto.estoque;
-    document.getElementById('produtoEstoqueMinimo').value =
-        produto.estoqueMinimo;
+    document.getElementById('produtoEstoqueMinimo').value = produto.estoqueMinimo;
     document.getElementById('produtoUnidade').value = produto.unidade;
     selectCategoria.value = String(produto.categoriaId);
 
+    // O campo de imagem fica vazio.
+    // Se não escolher outra imagem, a atual será preservada.
+
+    document.getElementById('produtoImagem').value = '';
+
     document.getElementById('btnSalvarProduto').textContent =
         'Salvar alterações';
+
     document.getElementById('btnCancelarProduto').hidden = false;
 
     formProduto.scrollIntoView({ behavior: 'smooth' });
@@ -345,12 +349,14 @@ function editarProduto(produto) {
 // Cancelar edição
 document.getElementById('btnCancelarProduto').addEventListener('click', () => {
     formProduto.reset();
+
     document.getElementById('produtoId').value = '';
     document.getElementById('produtoEstoque').value = '0';
     document.getElementById('produtoEstoqueMinimo').value = '5';
 
     document.getElementById('btnSalvarProduto').textContent =
         'Cadastrar produto';
+
     document.getElementById('btnCancelarProduto').hidden = true;
 });
 

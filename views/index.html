@@ -81,7 +81,7 @@
         <section class="painel">
             <h2>Produtos</h2>
 
-            <form id="formProduto">
+            <form id="formProduto" enctype="multipart/form-data">
                 <input type="hidden" id="produtoId">
 
                 <div class="form-grid">
@@ -132,6 +132,12 @@
                     <div class="campo">
                         <label for="produtoDescricao">Descrição</label>
                         <input type="text" id="produtoDescricao" placeholder="Descrição opcional">
+                    </div>
+
+                    <div class="campo">
+                        <label for="produtoImagem">Imagem do produto</label>
+                        <input type="file" id="produtoImagem" accept="image/png, image/jpeg, image/webp">
+                        <small>Escolha uma imagem JPG, PNG ou WEBP.</small>
                     </div>
                 </div>
 

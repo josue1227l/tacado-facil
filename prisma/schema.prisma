@@ -38,6 +38,7 @@ model Produto {
   estoqueMinimo Int     @default(5)
   unidade       String  @default("UN")
   ativo         Boolean @default(true)
+  imagem        String?
 
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
