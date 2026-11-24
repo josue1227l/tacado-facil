@@ -17,7 +17,8 @@ model Usuario {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  pedidos Pedido[]
+  pedidos             Pedido[] @relation("ClientePedidos")
+  pedidosComoFuncionario Pedido[] @relation("FuncionarioPedidos")
 }
 
 model Categoria {
@@ -29,15 +30,15 @@ model Categoria {
 }
 
 model Produto {
-  id            Int     @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   nome          String
   descricao     String?
-  codigo        String  @unique
+  codigo        String   @unique
   preco         Float
-  estoque       Int     @default(0)
-  estoqueMinimo Int     @default(5)
-  unidade       String  @default("UN")
-  ativo         Boolean @default(true)
+  estoque       Int      @default(0)
+  estoqueMinimo Int      @default(5)
+  unidade       String   @default("UN")
+  ativo         Boolean  @default(true)
   imagem        String?
 
   categoriaId Int
@@ -50,14 +51,22 @@ model Produto {
 }
 
 model Pedido {
-  id           Int          @id @default(autoincrement())
-  usuarioId    Int
-  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
-  status       String       @default("PENDENTE")
-  total        Float        @default(0)
-  itens        ItemPedido[]
-  criadoEm     DateTime     @default(now())
-  atualizadoEm DateTime     @updatedAt
+  id            Int      @id @default(autoincrement())
+  usuarioId     Int
+  funcionarioId Int?
+  status          String   @default("PENDENTE")
+  total           Float    @default(0)
+  formaPagamento  String   @default("NAO_INFORMADO")
+  statusPagamento String   @default("PENDENTE")
+
+  usuario Usuario @relation("ClientePedidos", fields: [usuarioId], references: [id])
+
+  funcionario Usuario? @relation("FuncionarioPedidos", fields: [funcionarioId], references: [id])
+
+  itens ItemPedido[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 }
 
 model ItemPedido {

@@ -4,10 +4,48 @@ const { requireLogin, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// CRIAR PEDIDO — cliente autenticado
+function requireFuncionario(req, res, next) {
+    return requireLogin(req, res, () => {
+        if (req.usuario.tipo !== 'FUNCIONARIO') {
+            return res.status(403).json({
+                erro: 'Acesso permitido somente para funcionários.'
+            });
+        }
+
+        next();
+    });
+}
+
+const dadosUsuario = {
+    select: {
+        id: true,
+        nome: true,
+        email: true
+    }
+};
+
+// CRIAR PEDIDO
 router.post('/', requireLogin, async (req, res) => {
     try {
-        const { itens } = req.body;
+        if (req.usuario.tipo !== 'CLIENTE') {
+            return res.status(403).json({
+                erro: 'Somente clientes podem realizar pedidos.'
+            });
+        }
+
+        const { itens, formaPagamento } = req.body;
+
+        const formasPermitidas = [
+            'PIX_SIMULADO',
+            'DINHEIRO_ENTREGA',
+            'CARTAO_ENTREGA'
+        ];
+
+        if (!formasPermitidas.includes(formaPagamento)) {
+            return res.status(400).json({
+                erro: 'Selecione uma forma de pagamento válida.'
+            });
+        }
 
         if (!Array.isArray(itens) || itens.length === 0) {
             return res.status(400).json({
@@ -15,7 +53,6 @@ router.post('/', requireLogin, async (req, res) => {
             });
         }
 
-        // Validar os produtos e as quantidades recebidas
         const quantidades = new Map();
 
         for (const item of itens) {
@@ -29,7 +66,7 @@ router.post('/', requireLogin, async (req, res) => {
                 quantidade <= 0
             ) {
                 return res.status(400).json({
-                    erro: 'Verifique os produtos e as quantidades do pedido.'
+                    erro: 'Verifique os produtos e as quantidades.'
                 });
             }
 
@@ -41,7 +78,6 @@ router.post('/', requireLogin, async (req, res) => {
 
         const idsProdutos = [...quantidades.keys()];
 
-        // Conferir se todos os produtos existem e estão ativos
         const produtos = await prisma.produto.findMany({
             where: {
                 id: { in: idsProdutos },
@@ -63,7 +99,7 @@ router.post('/', requireLogin, async (req, res) => {
 
             if (produto.estoque < quantidade) {
                 return res.status(400).json({
-                    erro: `Estoque insuficiente para o produto ${produto.nome}. Disponível: ${produto.estoque}.`
+                    erro: `Estoque insuficiente para ${produto.nome}. Disponível: ${produto.estoque}.`
                 });
             }
 
@@ -76,9 +112,7 @@ router.post('/', requireLogin, async (req, res) => {
             });
         }
 
-        // Criar o pedido e seus itens em uma transação
         const pedido = await prisma.$transaction(async (tx) => {
-            // Revalidar o estoque dentro da transação e diminuir as quantidades
             for (const item of itensPedido) {
                 const resultado = await tx.produto.updateMany({
                     where: {
@@ -96,9 +130,7 @@ router.post('/', requireLogin, async (req, res) => {
                 });
 
                 if (resultado.count !== 1) {
-                    throw new Error(
-                        'ESTOQUE_INSUFICIENTE'
-                    );
+                    throw new Error('ESTOQUE_INSUFICIENTE');
                 }
             }
 
@@ -107,11 +139,17 @@ router.post('/', requireLogin, async (req, res) => {
                     usuarioId: req.usuario.id,
                     total,
                     status: 'PENDENTE',
+                    formaPagamento,
+                    statusPagamento: formaPagamento === 'PIX_SIMULADO'
+                        ? 'AGUARDANDO_CONFIRMACAO'
+                        : 'PENDENTE',
                     itens: {
                         create: itensPedido
                     }
                 },
                 include: {
+                    usuario: dadosUsuario,
+                    funcionario: dadosUsuario,
                     itens: {
                         include: {
                             produto: true
@@ -121,10 +159,11 @@ router.post('/', requireLogin, async (req, res) => {
             });
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             mensagem: 'Pedido realizado com sucesso.',
             pedido
         });
+
     } catch (erro) {
         if (erro.message === 'ESTOQUE_INSUFICIENTE') {
             return res.status(409).json({
@@ -134,28 +173,44 @@ router.post('/', requireLogin, async (req, res) => {
 
         console.error('Erro ao criar pedido:', erro);
 
-        res.status(500).json({
+        return res.status(500).json({
             erro: 'Não foi possível realizar o pedido.'
         });
     }
 });
 
 // LISTAR PEDIDOS
-// Cliente vê somente os próprios pedidos; administrador vê todos.
 router.get('/', requireLogin, async (req, res) => {
     try {
-        const pedidos = await prisma.pedido.findMany({
-            where: req.usuario.tipo === 'ADMIN'
-                ? {}
-                : { usuarioId: req.usuario.id },
-            include: {
-                usuario: {
-                    select: {
-                        id: true,
-                        nome: true,
-                        email: true
+        let where = {};
+
+        if (req.usuario.tipo === 'CLIENTE') {
+            where = {
+                usuarioId: req.usuario.id
+            };
+        } else if (req.usuario.tipo === 'FUNCIONARIO') {
+            where = {
+                OR: [
+                    {
+                        funcionarioId: null,
+                        status: 'PENDENTE'
+                    },
+                    {
+                        funcionarioId: req.usuario.id
                     }
-                },
+                ]
+            };
+        } else if (req.usuario.tipo !== 'ADMIN') {
+            return res.status(403).json({
+                erro: 'Você não tem permissão para visualizar pedidos.'
+            });
+        }
+
+        const pedidos = await prisma.pedido.findMany({
+            where,
+            include: {
+                usuario: dadosUsuario,
+                funcionario: dadosUsuario,
                 itens: {
                     include: {
                         produto: true
@@ -167,18 +222,18 @@ router.get('/', requireLogin, async (req, res) => {
             }
         });
 
-        res.json(pedidos);
+        return res.json(pedidos);
+
     } catch (erro) {
         console.error('Erro ao listar pedidos:', erro);
 
-        res.status(500).json({
+        return res.status(500).json({
             erro: 'Não foi possível carregar os pedidos.'
         });
     }
 });
 
 // CONSULTAR UM PEDIDO
-// O cliente só pode consultar um pedido próprio.
 router.get('/:id', requireLogin, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -189,21 +244,32 @@ router.get('/:id', requireLogin, async (req, res) => {
             });
         }
 
-        const pedido = await prisma.pedido.findFirst({
-            where: {
+        let where = { id };
+
+        if (req.usuario.tipo === 'CLIENTE') {
+            where.usuarioId = req.usuario.id;
+        } else if (req.usuario.tipo === 'FUNCIONARIO') {
+            where = {
                 id,
-                ...(req.usuario.tipo === 'ADMIN'
-                    ? {}
-                    : { usuarioId: req.usuario.id })
-            },
-            include: {
-                usuario: {
-                    select: {
-                        id: true,
-                        nome: true,
-                        email: true
+                OR: [
+                    { funcionarioId: req.usuario.id },
+                    {
+                        funcionarioId: null,
+                        status: 'PENDENTE'
                     }
-                },
+                ]
+            };
+        } else if (req.usuario.tipo !== 'ADMIN') {
+            return res.status(403).json({
+                erro: 'Você não tem permissão para consultar este pedido.'
+            });
+        }
+
+        const pedido = await prisma.pedido.findFirst({
+            where,
+            include: {
+                usuario: dadosUsuario,
+                funcionario: dadosUsuario,
                 itens: {
                     include: {
                         produto: true
@@ -218,17 +284,141 @@ router.get('/:id', requireLogin, async (req, res) => {
             });
         }
 
-        res.json(pedido);
+        return res.json(pedido);
+
     } catch (erro) {
         console.error('Erro ao consultar pedido:', erro);
 
-        res.status(500).json({
+        return res.status(500).json({
             erro: 'Não foi possível consultar o pedido.'
         });
     }
 });
 
-// ALTERAR STATUS — somente administrador
+// FUNCIONÁRIO ASSUME UM PEDIDO
+router.post('/:id/assumir', requireFuncionario, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                erro: 'ID do pedido inválido.'
+            });
+        }
+
+        const resultado = await prisma.pedido.updateMany({
+            where: {
+                id,
+                funcionarioId: null,
+                status: 'PENDENTE'
+            },
+            data: {
+                funcionarioId: req.usuario.id,
+                status: 'SEPARANDO'
+            }
+        });
+
+        if (resultado.count !== 1) {
+            return res.status(409).json({
+                erro: 'Este pedido já foi assumido ou não está disponível.'
+            });
+        }
+
+        const pedido = await prisma.pedido.findUnique({
+            where: { id },
+            include: {
+                usuario: dadosUsuario,
+                funcionario: dadosUsuario,
+                itens: {
+                    include: {
+                        produto: true
+                    }
+                }
+            }
+        });
+
+        return res.json({
+            mensagem: 'Pedido assumido com sucesso. Inicie a separação dos produtos.',
+            pedido
+        });
+
+    } catch (erro) {
+        console.error('Erro ao assumir pedido:', erro);
+
+        return res.status(500).json({
+            erro: 'Não foi possível assumir o pedido.'
+        });
+    }
+});
+
+// FUNCIONÁRIO ATUALIZA A PREPARAÇÃO
+router.patch('/:id/funcionario-status', requireFuncionario, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const { status } = req.body;
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                erro: 'ID do pedido inválido.'
+            });
+        }
+
+        const transicoes = {
+            PREPARADO: 'SEPARANDO',
+            ENVIADO: 'PREPARADO'
+        };
+
+        if (!transicoes[status]) {
+            return res.status(400).json({
+                erro: 'Status inválido.'
+            });
+        }
+
+        const resultado = await prisma.pedido.updateMany({
+            where: {
+                id,
+                funcionarioId: req.usuario.id,
+                status: transicoes[status]
+            },
+            data: { status }
+        });
+
+        if (resultado.count !== 1) {
+            return res.status(409).json({
+                erro: 'Pedido não encontrado ou não permite essa mudança de status.'
+            });
+        }
+
+        const pedido = await prisma.pedido.findUnique({
+            where: { id },
+            include: {
+                usuario: dadosUsuario,
+                funcionario: dadosUsuario,
+                itens: {
+                    include: {
+                        produto: true
+                    }
+                }
+            }
+        });
+
+        return res.json({
+            mensagem: status === 'PREPARADO'
+                ? 'Pedido preparado com sucesso.'
+                : 'Pedido marcado como saiu para entrega.',
+            pedido
+        });
+
+    } catch (erro) {
+        console.error('Erro ao atualizar pedido pelo funcionário:', erro);
+
+        return res.status(500).json({
+            erro: 'Não foi possível atualizar o pedido.'
+        });
+    }
+});
+
+// ADMINISTRADOR ALTERA O STATUS DO PEDIDO
 router.patch('/:id/status', requireAdmin, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -238,6 +428,7 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
             'PENDENTE',
             'CONFIRMADO',
             'SEPARANDO',
+            'PREPARADO',
             'ENVIADO',
             'CONCLUIDO',
             'CANCELADO'
@@ -257,9 +448,7 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
 
         const pedidoExistente = await prisma.pedido.findUnique({
             where: { id },
-            include: {
-                itens: true
-            }
+            include: { itens: true }
         });
 
         if (!pedidoExistente) {
@@ -278,7 +467,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
         }
 
         const pedido = await prisma.$transaction(async (tx) => {
-            // Ao cancelar, devolver os produtos ao estoque uma única vez.
             if (
                 status === 'CANCELADO' &&
                 pedidoExistente.status !== 'CANCELADO'
@@ -299,13 +487,8 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
                 where: { id },
                 data: { status },
                 include: {
-                    usuario: {
-                        select: {
-                            id: true,
-                            nome: true,
-                            email: true
-                        }
-                    },
+                    usuario: dadosUsuario,
+                    funcionario: dadosUsuario,
                     itens: {
                         include: {
                             produto: true
@@ -315,15 +498,76 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
             });
         });
 
-        res.json({
+        return res.json({
             mensagem: 'Status do pedido atualizado com sucesso.',
             pedido
         });
+
     } catch (erro) {
         console.error('Erro ao atualizar pedido:', erro);
 
-        res.status(500).json({
+        return res.status(500).json({
             erro: 'Não foi possível atualizar o pedido.'
+        });
+    }
+});
+
+// ADMINISTRADOR ATUALIZA O STATUS DO PAGAMENTO
+router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const { statusPagamento } = req.body;
+
+        const statusPermitidos = [
+            'PENDENTE',
+            'AGUARDANDO_CONFIRMACAO',
+            'CONFIRMADO',
+            'RECUSADO',
+            'CANCELADO'
+        ];
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                erro: 'ID do pedido inválido.'
+            });
+        }
+
+        if (!statusPermitidos.includes(statusPagamento)) {
+            return res.status(400).json({
+                erro: 'Status de pagamento inválido.'
+            });
+        }
+
+        const pedido = await prisma.pedido.update({
+            where: { id },
+            data: { statusPagamento },
+            include: {
+                usuario: dadosUsuario,
+                funcionario: dadosUsuario,
+                itens: {
+                    include: {
+                        produto: true
+                    }
+                }
+            }
+        });
+
+        return res.json({
+            mensagem: 'Status do pagamento atualizado com sucesso.',
+            pedido
+        });
+
+    } catch (erro) {
+        if (erro.code === 'P2025') {
+            return res.status(404).json({
+                erro: 'Pedido não encontrado.'
+            });
+        }
+
+        console.error('Erro ao atualizar pagamento:', erro);
+
+        return res.status(500).json({
+            erro: 'Não foi possível atualizar o pagamento.'
         });
     }
 });

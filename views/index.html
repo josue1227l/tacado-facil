@@ -15,7 +15,7 @@
             <div>
                 <h1>Atacado Fácil</h1>
                 <p>Sistema de Gestão de Atacado</p>
-            </div> <br>
+            </div>
 
             <button type="button" id="botaoSair" class="secundario">
                 Sair
@@ -23,11 +23,11 @@
         </div>
     </header>
 
-
     <main class="container">
+
         <section class="boas-vindas">
             <h2>Painel administrativo</h2>
-            <p>Gerencie categorias, produtos, estoque e pedidos dos clientes.</p>
+            <p>Gerencie categorias, produtos, estoque, pedidos e pagamentos.</p>
         </section>
 
         <div id="mensagem" class="mensagem" hidden></div>
@@ -53,6 +53,7 @@
                     <button type="submit" id="btnSalvarCategoria">
                         Cadastrar categoria
                     </button>
+
                     <button type="button" class="secundario" id="btnCancelarCategoria" hidden>
                         Cancelar edição
                     </button>
@@ -68,6 +69,7 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
+
                     <tbody id="listaCategorias">
                         <tr>
                             <td colspan="3">Carregando categorias...</td>
@@ -85,6 +87,7 @@
                 <input type="hidden" id="produtoId">
 
                 <div class="form-grid">
+
                     <div class="campo">
                         <label for="produtoNome">Nome do produto</label>
                         <input type="text" id="produtoNome" placeholder="Ex.: Arroz 5 kg" required>
@@ -139,12 +142,14 @@
                         <input type="file" id="produtoImagem" accept="image/png, image/jpeg, image/webp">
                         <small>Escolha uma imagem JPG, PNG ou WEBP.</small>
                     </div>
+
                 </div>
 
                 <div class="botoes">
                     <button type="submit" id="btnSalvarProduto">
                         Cadastrar produto
                     </button>
+
                     <button type="button" class="secundario" id="btnCancelarProduto" hidden>
                         Cancelar edição
                     </button>
@@ -157,16 +162,17 @@
                         <tr>
                             <th>Produto</th>
                             <th>Código</th>
-                            <th>Categorias</th>
+                            <th>Categoria</th>
                             <th>Preço</th>
                             <th>Estoque</th>
                             <th>Situação</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
+
                     <tbody id="listaProdutos">
                         <tr>
-                            <td colspan="6">Carregando produtos...</td>
+                            <td colspan="7">Carregando produtos...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -176,7 +182,10 @@
         <!-- PEDIDOS -->
         <section class="painel">
             <h2>Gerenciamento de pedidos</h2>
-            <p>Visualize as compras realizadas pelos clientes e atualize o andamento dos pedidos.</p>
+
+            <p>
+                Acompanhe os pedidos, os funcionários responsáveis e os pagamentos.
+            </p>
 
             <div class="botoes">
                 <button type="button" id="btnAtualizarPedidos">
@@ -192,21 +201,26 @@
                         <tr>
                             <th>Pedido</th>
                             <th>Cliente</th>
+                            <th>Funcionário</th>
                             <th>Data</th>
                             <th>Itens comprados</th>
                             <th>Total</th>
-                            <th>Status</th>
+                            <th>Forma de pagamento</th>
+                            <th>Status do pagamento</th>
+                            <th>Status do pedido</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
+
                     <tbody id="listaPedidos">
                         <tr>
-                            <td colspan="7">Os pedidos serão carregados aqui.</td>
+                            <td colspan="10">Os pedidos serão carregados aqui.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
+
     </main>
 
     <footer>
@@ -214,6 +228,7 @@
     </footer>
 
     <script src="/js/app.js"></script>
+
 </body>
 
 </html>

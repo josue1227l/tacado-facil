@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,8 +23,14 @@
             margin-bottom: 30px;
         }
 
-        .cabecalho-cliente h1 {
+        .cabecalho-cliente h1,
+        .produto-card h3,
+        .pedido-card h3,
+        .item-carrinho h3 {
             color: #166534;
+        }
+
+        .cabecalho-cliente h1 {
             margin: 0;
         }
 
@@ -43,15 +50,41 @@
             margin-top: 20px;
         }
 
-        .produto-card {
+        .produto-card,
+        .pedido-card,
+        .carrinho-card,
+        .pagamento-card {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
 
+        .produto-card {
+            overflow: hidden;
+        }
+
+        .produto-imagem {
+            width: 100%;
+            height: 190px;
+            object-fit: contain;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .imagem-indisponivel {
+            height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            color: #777;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
         .produto-card h3 {
-            color: #166534;
             margin-top: 0;
         }
 
@@ -73,7 +106,9 @@
             margin-top: 15px;
         }
 
-        .campo-quantidade input {
+        .campo-quantidade input,
+        .item-carrinho input,
+        .pagamento-card select {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
@@ -82,7 +117,8 @@
             box-sizing: border-box;
         }
 
-        .botao-comprar {
+        .botao-comprar,
+        .botao-finalizar {
             width: 100%;
             padding: 12px;
             margin-top: 12px;
@@ -94,17 +130,101 @@
             font-size: 16px;
         }
 
-        .botao-comprar:hover {
+        .botao-comprar:hover,
+        .botao-finalizar:hover {
             background: #166534;
         }
 
-        .botao-comprar:disabled {
+        .botao-finalizar:disabled {
             background: #999;
             cursor: not-allowed;
         }
 
+        .botao-remover {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
         .mensagem {
             margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .secao-carrinho {
+            margin-top: 40px;
+        }
+
+        .carrinho-card {
+            margin-top: 15px;
+            border-left: 5px solid #15803d;
+        }
+
+        .item-carrinho {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .item-carrinho:last-child {
+            border-bottom: none;
+        }
+
+        .imagem-carrinho {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            background: #f3f4f6;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .dados-carrinho {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dados-carrinho h3 {
+            margin: 0 0 8px;
+        }
+
+        .campo-carrinho {
+            max-width: 130px;
+            margin-top: 10px;
+        }
+
+        .total-carrinho {
+            font-size: 23px;
+            font-weight: bold;
+            color: #15803d;
+            margin-top: 20px;
+        }
+
+        .pagamento-card {
+            margin-top: 20px;
+            border-left: 5px solid #15803d;
+        }
+
+        .pagamento-card label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: bold;
+        }
+
+        .aviso-pagamento {
+            color: #555;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .status-pagamento {
+            color: #166534;
             font-weight: bold;
         }
 
@@ -113,21 +233,26 @@
         }
 
         .pedido-card {
-            background: white;
-            padding: 18px;
             margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
-        .pedido-card h3 {
-            color: #166534;
+        @media (max-width: 500px) {
+            .item-carrinho {
+                align-items: flex-start;
+            }
+
+            .imagem-carrinho {
+                width: 65px;
+                height: 65px;
+            }
         }
     </style>
 </head>
 
 <body>
+
     <main class="pagina-cliente">
+
         <header class="cabecalho-cliente">
             <div>
                 <h1>Atacado Fácil</h1>
@@ -141,7 +266,7 @@
 
         <section>
             <h2>Produtos disponíveis</h2>
-            <p>Escolha os produtos e informe a quantidade desejada.</p>
+            <p>Escolha os produtos e adicione ao seu carrinho.</p>
 
             <p id="mensagemCatalogo" class="mensagem" role="status"></p>
 
@@ -150,18 +275,62 @@
             </div>
         </section>
 
+        <section class="secao-carrinho">
+            <h2>Meu carrinho</h2>
+            <p>Confira os produtos antes de finalizar sua compra.</p>
+
+            <div class="carrinho-card">
+                <div id="listaCarrinho">
+                    <p>Seu carrinho está vazio.</p>
+                </div>
+
+                <p class="total-carrinho">
+                    Total: <span id="totalCarrinho">R$ 0,00</span>
+                </p>
+            </div>
+        </section>
+
+        <section class="pagamento-card">
+            <h2>Finalizar pedido</h2>
+
+            <p>
+                Escolha uma única forma de pagamento para todos os produtos do carrinho.
+            </p>
+
+            <label for="formaPagamento">Forma de pagamento:</label>
+
+            <select id="formaPagamento">
+                <option value="">Selecione...</option>
+                <option value="PIX_SIMULADO">PIX (simulação)</option>
+                <option value="DINHEIRO_ENTREGA">Dinheiro na entrega</option>
+                <option value="CARTAO_ENTREGA">Cartão na entrega</option>
+            </select>
+
+            <p class="aviso-pagamento">
+                Esta é uma demonstração acadêmica. Nenhum pagamento real será processado.
+            </p>
+
+            <button type="button" id="btnFinalizarPedido" class="botao-finalizar" disabled>
+                Finalizar compra
+            </button>
+
+            <p id="mensagemFinalizacao" class="mensagem" role="status"></p>
+        </section>
+
         <section class="secao-pedidos">
             <h2>Meus pedidos</h2>
-            <p>Acompanhe as compras que você realizou.</p>
+            <p>Acompanhe suas compras e seus pagamentos.</p>
 
-            <p id="mensagemPedidos" class="mensagem" role="status"></p>
+            <div id="mensagemPedidos" class="mensagem" role="status"></div>
 
             <div id="listaPedidos">
                 <p>Carregando pedidos...</p>
             </div>
         </section>
+
     </main>
 
     <script src="/js/cliente.js"></script>
+
 </body>
 </html>

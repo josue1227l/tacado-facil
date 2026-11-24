@@ -40,14 +40,9 @@ app.use('/api/produtos', produtosRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
-// Tela inicial da Feira
+// Página inicial: direciona diretamente para o login
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'feira.html'));
-});
-
-// Entrada alternativa da Feira
-app.get('/feira', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'feira.html'));
+    res.redirect('/login');
 });
 
 // Login e cadastro
@@ -55,7 +50,7 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
-// Painel: direciona conforme o tipo de usuário
+// Painel direcionado conforme o tipo de usuário
 app.get('/painel', async (req, res) => {
     try {
         if (!req.session.usuarioId) {
@@ -86,19 +81,27 @@ app.get('/painel', async (req, res) => {
             );
         }
 
-        return res.sendFile(
-            path.join(__dirname, 'views', 'cliente.html')
-        );
+        if (usuario.tipo === 'FUNCIONARIO') {
+            return res.sendFile(
+                path.join(__dirname, 'views', 'funcionario.html')
+            );
+        }
+
+        if (usuario.tipo === 'CLIENTE') {
+            return res.sendFile(
+                path.join(__dirname, 'views', 'cliente.html')
+            );
+        }
+
+        return res.status(403).send('Tipo de usuário não autorizado.');
 
     } catch (erro) {
         console.error('Erro ao abrir painel:', erro);
-        res.status(500).send('Erro ao abrir o painel do sistema.');
-    }
-});
 
-// Página da demonstração
-app.get('/demonstracao', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'demonstracao.html'));
+        return res.status(500).send(
+            'Erro ao abrir o painel do sistema.'
+        );
+    }
 });
 
 // Inicialização do servidor

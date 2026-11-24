@@ -1,12 +1,19 @@
 {
-  "name": "projeto-2",
+  "name": "atacado-facil",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sistema web de gestão de atacado",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
+  "start": "node server.js",
+  "dev": "node --watch server.js",
+  "seed": "node prisma/seed.js"
+},
+  "keywords": [
+    "atacado",
+    "gestao",
+    "pedidos",
+    "estoque"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

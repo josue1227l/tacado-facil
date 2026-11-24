@@ -6,6 +6,12 @@ node_modules/
 .env.*
 !.env.example
 
+# Bancos de dados de backup
+prisma/dev-antes-pagamento.db
+
+# Arquivos de backup
+*.backup.*
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
@@ -17,3 +23,7 @@ Desktop.ini
 
 # Arquivos de editores
 .vscode/
+
+# Banco de dados local (não publicar)
+prisma/dev.db
+prisma/dev.db-journal

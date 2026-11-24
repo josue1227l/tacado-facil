@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atacado Fácil - Painel do Funcionário</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        .pagina-funcionario {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .cabecalho-funcionario {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .cabecalho-funcionario h1 {
+            color: #166534;
+            margin: 0;
+        }
+
+        .botao-sair {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            cursor: pointer;
+        }
+
+        .secao-pedidos {
+            margin-top: 35px;
+        }
+
+        .lista-pedidos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .pedido-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #15803d;
+        }
+
+        .pedido-card h3 {
+            color: #166534;
+            margin-top: 0;
+        }
+
+        .pedido-card p {
+            margin: 8px 0;
+            color: #444;
+        }
+
+        .itens-pedido {
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+
+        .status-pedido {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .botao-acao {
+            width: 100%;
+            padding: 11px;
+            margin-top: 10px;
+            background: #15803d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .botao-acao:hover {
+            background: #166534;
+        }
+
+        .botao-acao:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .mensagem {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .mensagem-erro {
+            color: #dc2626;
+        }
+
+        .mensagem-sucesso {
+            color: #15803d;
+        }
+
+        .vazio {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .valor-total {
+            font-size: 19px;
+            font-weight: bold;
+            color: #15803d !important;
+        }
+
+        @media (max-width: 600px) {
+            .pagina-funcionario {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="pagina-funcionario">
+
+        <header class="cabecalho-funcionario">
+            <div>
+                <h1>Atacado Fácil</h1>
+                <p>Painel do Funcionário</p>
+                <p id="nomeFuncionario">Carregando funcionário...</p>
+            </div>
+
+            <button type="button" class="botao-sair" id="botaoSair">
+                Sair da conta
+            </button>
+        </header>
+
+        <section class="secao-pedidos">
+            <h2>Pedidos disponíveis</h2>
+            <p>Pedidos aguardando um funcionário para iniciar a separação.</p>
+
+            <div id="listaDisponiveis" class="lista-pedidos">
+                <p>Carregando pedidos...</p>
+            </div>
+        </section>
+
+        <section class="secao-pedidos">
+            <h2>Meus pedidos</h2>
+            <p>Acompanhe os pedidos que você assumiu e atualize suas etapas.</p>
+
+            <div id="listaMeusPedidos" class="lista-pedidos">
+                <p>Carregando pedidos...</p>
+            </div>
+        </section>
+
+        <p id="mensagemFuncionario" class="mensagem" role="status"></p>
+
+    </main>
+
+    <script src="/js/funcionario.js"></script>
+</body>
+</html>

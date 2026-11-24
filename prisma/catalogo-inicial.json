@@ -1,0 +1,283 @@
+{
+  "categorias": [
+    {
+      "id": 1,
+      "nome": "Bebidas",
+      "descricao": null
+    },
+    {
+      "id": 2,
+      "nome": "Mercearia",
+      "descricao": null
+    },
+    {
+      "id": 3,
+      "nome": "Hortifruti",
+      "descricao": null
+    },
+    {
+      "id": 4,
+      "nome": "Açougue",
+      "descricao": null
+    },
+    {
+      "id": 5,
+      "nome": "Limpeza",
+      "descricao": null
+    },
+    {
+      "id": 7,
+      "nome": "Frios",
+      "descricao": null
+    }
+  ],
+  "produtos": [
+    {
+      "id": 2,
+      "nome": "Arroz Tipo 1",
+      "descricao": null,
+      "codigo": "MER001",
+      "preco": 25,
+      "estoque": 48,
+      "estoqueMinimo": 10,
+      "unidade": "PCT",
+      "ativo": true,
+      "imagem": "/uploads/9b7059d7-b541-4cbd-8dd3-f9820079d239.jpg",
+      "categoriaId": 2
+    },
+    {
+      "id": 3,
+      "nome": "Carne bovina",
+      "descricao": null,
+      "codigo": "ACO001",
+      "preco": 35.9,
+      "estoque": 39,
+      "estoqueMinimo": 5,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/41c1877f-7c8b-42e7-935e-441d289debb2.jpg",
+      "categoriaId": 4
+    },
+    {
+      "id": 4,
+      "nome": "Frango inteiro",
+      "descricao": null,
+      "codigo": "ACO002",
+      "preco": 12.9,
+      "estoque": 50,
+      "estoqueMinimo": 8,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/0da278a6-459f-46ec-9fea-2765f52b17ff.jpg",
+      "categoriaId": 4
+    },
+    {
+      "id": 5,
+      "nome": "Linguiça",
+      "descricao": null,
+      "codigo": "ACO003",
+      "preco": 18.9,
+      "estoque": 35,
+      "estoqueMinimo": 5,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/b175d7bf-0ba6-42b9-adbe-02b64aff8719.jpg",
+      "categoriaId": 4
+    },
+    {
+      "id": 6,
+      "nome": "Água mineral 1,5 L",
+      "descricao": null,
+      "codigo": "BEB001",
+      "preco": 3.5,
+      "estoque": 100,
+      "estoqueMinimo": 15,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/ef04df3f-bdc1-48af-831c-0193632ac8b4.jpg",
+      "categoriaId": 1
+    },
+    {
+      "id": 7,
+      "nome": "Refrigerante 2 L",
+      "descricao": null,
+      "codigo": "BEB002",
+      "preco": 8.99,
+      "estoque": 60,
+      "estoqueMinimo": 10,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/b3f30950-deb5-42db-8d17-7ef665763e9d.jpg",
+      "categoriaId": 1
+    },
+    {
+      "id": 8,
+      "nome": "Suco 1 L",
+      "descricao": null,
+      "codigo": "BEB003",
+      "preco": 6.5,
+      "estoque": 45,
+      "estoqueMinimo": 8,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/408b3011-a481-40ba-8372-2b462ed7d560.jpg",
+      "categoriaId": 1
+    },
+    {
+      "id": 9,
+      "nome": "Mussarela",
+      "descricao": null,
+      "codigo": "FRI001",
+      "preco": 39.9,
+      "estoque": 25,
+      "estoqueMinimo": 5,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/c2a2a808-d884-4f10-8292-a104589efe70.jpg",
+      "categoriaId": 7
+    },
+    {
+      "id": 10,
+      "nome": "Presunto",
+      "descricao": null,
+      "codigo": "FRI002",
+      "preco": 29.99,
+      "estoque": 20,
+      "estoqueMinimo": 5,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/9640af64-56a9-48c1-b237-59f207a55176.jpg",
+      "categoriaId": 7
+    },
+    {
+      "id": 11,
+      "nome": "Batata",
+      "descricao": null,
+      "codigo": "HOR001",
+      "preco": 5.99,
+      "estoque": 80,
+      "estoqueMinimo": 10,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/0952dd9a-da18-416f-8a3c-74a953a52470.jpg",
+      "categoriaId": 3
+    },
+    {
+      "id": 12,
+      "nome": "Cebola",
+      "descricao": null,
+      "codigo": "HOR002",
+      "preco": 4.99,
+      "estoque": 60,
+      "estoqueMinimo": 10,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/04c16145-9a33-4b64-8161-5b737d6027f1.jpg",
+      "categoriaId": 3
+    },
+    {
+      "id": 13,
+      "nome": "Tomate",
+      "descricao": null,
+      "codigo": "HOR003",
+      "preco": 7.99,
+      "estoque": 70,
+      "estoqueMinimo": 10,
+      "unidade": "KG",
+      "ativo": true,
+      "imagem": "/uploads/bb909b64-aab4-43f1-a1dc-2f3b6963dfd8.jpg",
+      "categoriaId": 3
+    },
+    {
+      "id": 14,
+      "nome": "Detergente",
+      "descricao": null,
+      "codigo": "LIM001",
+      "preco": 2.49,
+      "estoque": 100,
+      "estoqueMinimo": 15,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/50e94bd3-0900-48e0-86f3-66c8442582d9.jpg",
+      "categoriaId": 5
+    },
+    {
+      "id": 15,
+      "nome": "Água sanitária 1 L",
+      "descricao": null,
+      "codigo": "LIM002",
+      "preco": 4.5,
+      "estoque": 60,
+      "estoqueMinimo": 10,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/9bebdd58-6076-478d-b801-c7a5d5b37ce8.jpg",
+      "categoriaId": 5
+    },
+    {
+      "id": 16,
+      "nome": "Feijão 1 kg",
+      "descricao": null,
+      "codigo": "MER002",
+      "preco": 7.99,
+      "estoque": 79,
+      "estoqueMinimo": 10,
+      "unidade": "PCT",
+      "ativo": true,
+      "imagem": "/uploads/7524ee4d-4699-42d1-a77d-9d13434c3cb8.jpg",
+      "categoriaId": 2
+    },
+    {
+      "id": 17,
+      "nome": "Açúcar 1 kg",
+      "descricao": null,
+      "codigo": "MER003",
+      "preco": 4.5,
+      "estoque": 90,
+      "estoqueMinimo": 10,
+      "unidade": "PCT",
+      "ativo": true,
+      "imagem": "/uploads/efe5635e-047c-4ccc-9279-aabc40d0f01b.jpg",
+      "categoriaId": 2
+    },
+    {
+      "id": 18,
+      "nome": "Macarrão 500 g",
+      "descricao": null,
+      "codigo": "MER004",
+      "preco": 3.99,
+      "estoque": 68,
+      "estoqueMinimo": 10,
+      "unidade": "PCT",
+      "ativo": true,
+      "imagem": "/uploads/408f3017-dc5e-446f-b1a9-3b0df6338170.jpg",
+      "categoriaId": 2
+    },
+    {
+      "id": 19,
+      "nome": "Flocão de milho",
+      "descricao": null,
+      "codigo": "MER005",
+      "preco": 2.99,
+      "estoque": 76,
+      "estoqueMinimo": 10,
+      "unidade": "PCT",
+      "ativo": true,
+      "imagem": "/uploads/1d593a16-5178-4e0f-8cfd-55fb529e3610.jpg",
+      "categoriaId": 2
+    },
+    {
+      "id": 20,
+      "nome": "Óleo de soja — 900 ml",
+      "descricao": null,
+      "codigo": "MER006",
+      "preco": 7.49,
+      "estoque": 65,
+      "estoqueMinimo": 10,
+      "unidade": "UN",
+      "ativo": true,
+      "imagem": "/uploads/0df9bd56-fcb5-486b-8fb9-796c41f4582f.jpg",
+      "categoriaId": 2
+    }
+  ]
+}

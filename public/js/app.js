@@ -18,14 +18,22 @@ const statusPedidos = [
     'PENDENTE',
     'CONFIRMADO',
     'SEPARANDO',
+    'PREPARADO',
     'ENVIADO',
     'CONCLUIDO',
     'CANCELADO'
 ];
 
+const statusPagamentos = [
+    'PENDENTE',
+    'AGUARDANDO_CONFIRMACAO',
+    'CONFIRMADO',
+    'RECUSADO',
+    'CANCELADO'
+];
+
 async function requisicao(url, opcoes = {}) {
     const ehFormData = opcoes.body instanceof FormData;
-
     const headers = { ...opcoes.headers };
 
     if (!ehFormData) {
@@ -79,7 +87,6 @@ function formatarPreco(valor) {
 
 function formatarData(data) {
     if (!data) return '-';
-
     return new Date(data).toLocaleString('pt-BR');
 }
 
@@ -88,12 +95,36 @@ function traduzirStatus(status) {
         PENDENTE: 'Pendente',
         CONFIRMADO: 'Confirmado',
         SEPARANDO: 'Separando',
-        ENVIADO: 'Enviado',
+        PREPARADO: 'Preparado',
+        ENVIADO: 'Saiu para entrega',
         CONCLUIDO: 'Concluído',
         CANCELADO: 'Cancelado'
     };
 
-    return nomes[status] || status;
+    return nomes[status] || status || '-';
+}
+
+function traduzirFormaPagamento(forma) {
+    const nomes = {
+        PIX_SIMULADO: 'PIX (simulação)',
+        DINHEIRO_ENTREGA: 'Dinheiro na entrega',
+        CARTAO_ENTREGA: 'Cartão na entrega',
+        NAO_INFORMADO: 'Não informado'
+    };
+
+    return nomes[forma] || forma || 'Não informado';
+}
+
+function traduzirStatusPagamento(status) {
+    const nomes = {
+        PENDENTE: 'Pendente',
+        AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
+        CONFIRMADO: 'Confirmado',
+        RECUSADO: 'Recusado',
+        CANCELADO: 'Cancelado'
+    };
+
+    return nomes[status] || status || '-';
 }
 
 // ==================== CATEGORIAS ====================
@@ -123,17 +154,20 @@ async function carregarCategorias() {
         const celulaAcoes = document.createElement('td');
 
         const btnEditar = document.createElement('button');
+        btnEditar.type = 'button';
         btnEditar.textContent = 'Editar';
         btnEditar.className = 'editar';
         btnEditar.addEventListener('click', () => editarCategoria(categoria));
 
         const btnExcluir = document.createElement('button');
+        btnExcluir.type = 'button';
         btnExcluir.textContent = 'Excluir';
         btnExcluir.className = 'excluir';
         btnExcluir.addEventListener('click', () => excluirCategoria(categoria));
 
         celulaAcoes.append(btnEditar, btnExcluir);
         linha.appendChild(celulaAcoes);
+
         listaCategorias.appendChild(linha);
     });
 
@@ -163,8 +197,10 @@ formCategoria.addEventListener('submit', async evento => {
 
         formCategoria.reset();
         document.getElementById('categoriaId').value = '';
+
         document.getElementById('btnSalvarCategoria').textContent =
             'Cadastrar categoria';
+
         document.getElementById('btnCancelarCategoria').hidden = true;
 
         await carregarCategorias();
@@ -183,6 +219,7 @@ function editarCategoria(categoria) {
 
     document.getElementById('btnSalvarCategoria').textContent =
         'Salvar alterações';
+
     document.getElementById('btnCancelarCategoria').hidden = false;
 
     formCategoria.scrollIntoView({ behavior: 'smooth' });
@@ -194,6 +231,7 @@ document.getElementById('btnCancelarCategoria').addEventListener('click', () => 
 
     document.getElementById('btnSalvarCategoria').textContent =
         'Cadastrar categoria';
+
     document.getElementById('btnCancelarCategoria').hidden = true;
 });
 
@@ -213,7 +251,6 @@ async function excluirCategoria(categoria) {
         mostrarMensagem(erro.message, true);
     }
 }
-
 
 // ==================== PRODUTOS ====================
 
@@ -251,12 +288,14 @@ async function carregarProdutos() {
         btnSituacao.textContent = produto.ativo ? 'Desativar' : 'Ativar';
         btnSituacao.className = produto.ativo ? 'excluir' : 'editar';
         btnSituacao.style.marginLeft = '5px';
+
         btnSituacao.addEventListener('click', () => {
             alterarSituacaoProduto(produto);
         });
 
         celulaAcoes.append(btnEditar, btnExcluir, btnSituacao);
         linha.appendChild(celulaAcoes);
+
         listaProdutos.appendChild(linha);
     });
 
@@ -265,12 +304,10 @@ async function carregarProdutos() {
     }
 }
 
-// Cadastrar ou atualizar produto
 formProduto.addEventListener('submit', async evento => {
     evento.preventDefault();
 
     const id = document.getElementById('produtoId').value;
-
     const dados = new FormData();
 
     dados.append('nome', document.getElementById('produtoNome').value.trim());
@@ -321,7 +358,6 @@ formProduto.addEventListener('submit', async evento => {
     }
 });
 
-// Preencher formulário para editar
 function editarProduto(produto) {
     document.getElementById('produtoId').value = produto.id;
     document.getElementById('produtoNome').value = produto.nome;
@@ -331,10 +367,8 @@ function editarProduto(produto) {
     document.getElementById('produtoEstoque').value = produto.estoque;
     document.getElementById('produtoEstoqueMinimo').value = produto.estoqueMinimo;
     document.getElementById('produtoUnidade').value = produto.unidade;
-    selectCategoria.value = String(produto.categoriaId);
 
-    // O campo de imagem fica vazio.
-    // Se não escolher outra imagem, a atual será preservada.
+    selectCategoria.value = String(produto.categoriaId);
 
     document.getElementById('produtoImagem').value = '';
 
@@ -346,7 +380,6 @@ function editarProduto(produto) {
     formProduto.scrollIntoView({ behavior: 'smooth' });
 }
 
-// Cancelar edição
 document.getElementById('btnCancelarProduto').addEventListener('click', () => {
     formProduto.reset();
 
@@ -360,7 +393,6 @@ document.getElementById('btnCancelarProduto').addEventListener('click', () => {
     document.getElementById('btnCancelarProduto').hidden = true;
 });
 
-// Excluir produto
 async function excluirProduto(produto) {
     if (!confirm(`Deseja excluir o produto "${produto.nome}"?`)) {
         return;
@@ -378,7 +410,6 @@ async function excluirProduto(produto) {
     }
 }
 
-// Ativar ou desativar produto
 async function alterarSituacaoProduto(produto) {
     const novaSituacao = !produto.ativo;
     const acao = novaSituacao ? 'ativar' : 'desativar';
@@ -405,7 +436,6 @@ async function alterarSituacaoProduto(produto) {
     }
 }
 
-
 // ==================== PEDIDOS ====================
 
 async function carregarPedidos() {
@@ -415,7 +445,7 @@ async function carregarPedidos() {
         const pedidos = await requisicao('/api/pedidos');
 
         if (!Array.isArray(pedidos) || pedidos.length === 0) {
-            adicionarLinhaVazia(listaPedidos, 7, 'Nenhum pedido realizado ainda.');
+            adicionarLinhaVazia(listaPedidos, 10, 'Nenhum pedido realizado ainda.');
             return;
         }
 
@@ -424,6 +454,7 @@ async function carregarPedidos() {
 
             adicionarCelula(linha, `#${pedido.id}`);
             adicionarCelula(linha, pedido.usuario?.nome || 'Cliente');
+            adicionarCelula(linha, pedido.funcionario?.nome || 'Não atribuído');
             adicionarCelula(linha, formatarData(pedido.criadoEm));
 
             const celulaItens = document.createElement('td');
@@ -432,8 +463,10 @@ async function carregarPedidos() {
             (pedido.itens || []).forEach(item => {
                 const itemLista = document.createElement('li');
                 const nomeProduto = item.produto?.nome || 'Produto';
+
                 itemLista.textContent =
                     `${nomeProduto} — ${item.quantidade} x ${formatarPreco(item.precoUnitario)}`;
+
                 listaItens.appendChild(itemLista);
             });
 
@@ -445,6 +478,70 @@ async function carregarPedidos() {
             linha.appendChild(celulaItens);
 
             adicionarCelula(linha, formatarPreco(pedido.total));
+            adicionarCelula(linha, traduzirFormaPagamento(pedido.formaPagamento));
+
+            // Seletor do pagamento
+            const celulaPagamento = document.createElement('td');
+            const seletorPagamento = document.createElement('select');
+
+            statusPagamentos.forEach(status => {
+                const opcao = document.createElement('option');
+                opcao.value = status;
+                opcao.textContent = traduzirStatusPagamento(status);
+                seletorPagamento.appendChild(opcao);
+            });
+
+            seletorPagamento.value = pedido.statusPagamento || 'PENDENTE';
+
+            const btnSalvarPagamento = document.createElement('button');
+            btnSalvarPagamento.type = 'button';
+            btnSalvarPagamento.textContent = 'Salvar pagamento';
+            btnSalvarPagamento.className = 'editar';
+
+            btnSalvarPagamento.addEventListener('click', async () => {
+                const novoStatus = seletorPagamento.value;
+
+                if (novoStatus === pedido.statusPagamento) {
+                    mostrarMensagemPedido(
+                        `O pagamento do pedido #${pedido.id} já está com esse status.`
+                    );
+                    return;
+                }
+
+                const confirmou = confirm(
+                    `Deseja alterar o pagamento do pedido #${pedido.id} para "${traduzirStatusPagamento(novoStatus)}"?`
+                );
+
+                if (!confirmou) {
+                    seletorPagamento.value = pedido.statusPagamento || 'PENDENTE';
+                    return;
+                }
+
+                btnSalvarPagamento.disabled = true;
+
+                try {
+                    await requisicao(`/api/pedidos/${pedido.id}/pagamento`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            statusPagamento: novoStatus
+                        })
+                    });
+
+                    mostrarMensagemPedido(
+                        `Pagamento do pedido #${pedido.id} atualizado!`
+                    );
+
+                    await carregarPedidos();
+                } catch (erro) {
+                    mostrarMensagemPedido(erro.message, true);
+                    btnSalvarPagamento.disabled = false;
+                }
+            });
+
+            celulaPagamento.append(seletorPagamento, btnSalvarPagamento);
+            linha.appendChild(celulaPagamento);
+
+            // Status geral do pedido
             adicionarCelula(linha, traduzirStatus(pedido.status));
 
             const celulaAcoes = document.createElement('td');
@@ -460,6 +557,7 @@ async function carregarPedidos() {
             seletorStatus.value = pedido.status;
 
             const btnSalvarStatus = document.createElement('button');
+            btnSalvarStatus.type = 'button';
             btnSalvarStatus.textContent = 'Salvar status';
             btnSalvarStatus.className = 'editar';
 
@@ -473,11 +571,11 @@ async function carregarPedidos() {
                     return;
                 }
 
-                const confirmacao = confirm(
+                const confirmou = confirm(
                     `Deseja alterar o pedido #${pedido.id} para "${traduzirStatus(novoStatus)}"?`
                 );
 
-                if (!confirmacao) {
+                if (!confirmou) {
                     seletorStatus.value = pedido.status;
                     return;
                 }
@@ -487,7 +585,9 @@ async function carregarPedidos() {
                 try {
                     await requisicao(`/api/pedidos/${pedido.id}/status`, {
                         method: 'PATCH',
-                        body: JSON.stringify({ status: novoStatus })
+                        body: JSON.stringify({
+                            status: novoStatus
+                        })
                     });
 
                     mostrarMensagemPedido(
@@ -507,8 +607,14 @@ async function carregarPedidos() {
 
             listaPedidos.appendChild(linha);
         });
+
     } catch (erro) {
-        adicionarLinhaVazia(listaPedidos, 7, 'Não foi possível carregar os pedidos.');
+        adicionarLinhaVazia(
+            listaPedidos,
+            10,
+            'Não foi possível carregar os pedidos.'
+        );
+
         mostrarMensagemPedido(erro.message, true);
     }
 }
@@ -551,8 +657,8 @@ async function inicializar() {
 
 inicializar();
 
+// ==================== SAIR DO PAINEL ====================
 
-// Função pra sair do painel admin
 document.getElementById('botaoSair').addEventListener('click', async () => {
     const confirmou = confirm('Deseja realmente sair da sua conta?');
 
