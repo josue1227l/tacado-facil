@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,54 +14,59 @@
 
         body {
             min-height: 100vh;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            background: #f1f5f1;
+            padding: 30px;
+            background: #f8faf8;
         }
 
-        .acesso-container {
+        /* Organização geral da tela */
+        .pagina-acesso {
             width: 100%;
-            max-width: 850px;
-            margin: 0 auto;
-            padding: 0;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
-            overflow: hidden;
+            max-width: 1250px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr minmax(380px, 520px) 1fr;
+            align-items: center;
+            gap: 35px;
+            margin: auto;
         }
 
+        /* Carrinhos laterais */
         .ilustracao-carrinho {
-            background: #f0fdf4;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 35px;
         }
 
         .ilustracao-carrinho svg {
             width: 100%;
-            max-width: 280px;
+            max-width: 260px;
             height: auto;
         }
 
-        .conteudo-acesso {
-            padding: 35px;
+        /* Cartão central */
+        .acesso-container {
+            width: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
         .acesso-container h1 {
             text-align: center;
             color: #166534;
-            margin-bottom: 8px;
+            font-size: 34px;
+            margin: 0 0 8px;
         }
 
         .subtitulo {
             text-align: center;
             color: #666;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
 
         .formulario-acesso {
@@ -70,30 +76,39 @@
         }
 
         .formulario-acesso h2 {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            color: #1f2937;
         }
 
         .formulario-acesso label {
             font-weight: bold;
+            color: #374151;
         }
 
         .formulario-acesso input {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
             font-size: 15px;
             width: 100%;
+            outline: none;
+        }
+
+        .formulario-acesso input:focus {
+            border-color: #15803d;
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.10);
         }
 
         .formulario-acesso button {
-            padding: 12px;
-            background: #15803d;
+            padding: 14px;
+            background: #16a34a;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 8px;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
         .formulario-acesso button:hover {
@@ -102,15 +117,23 @@
 
         .alternar {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 22px;
+            color: #555;
         }
 
         .alternar button {
+            display: block;
+            margin: 8px auto 0;
             border: none;
             background: none;
             color: #15803d;
             cursor: pointer;
             font-weight: bold;
+            font-size: 15px;
+        }
+
+        .alternar button:hover {
+            text-decoration: underline;
         }
 
         #mensagem {
@@ -123,38 +146,63 @@
             display: none !important;
         }
 
-        @media (max-width: 650px) {
-            .acesso-container {
-                max-width: 420px;
-                grid-template-columns: 1fr;
-            }
-
-            .ilustracao-carrinho {
-                padding: 20px;
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .pagina-acesso {
+                grid-template-columns: 1fr minmax(340px, 480px) 1fr;
+                gap: 15px;
             }
 
             .ilustracao-carrinho svg {
-                max-width: 130px;
+                max-width: 150px;
             }
 
-            .conteudo-acesso {
+            .acesso-container {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 20px;
+            }
+
+            .pagina-acesso {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                max-width: 450px;
+            }
+
+            .ilustracao-carrinho svg {
+                max-width: 100px;
+            }
+
+            .acesso-container {
+                grid-column: 1 / -1;
+                grid-row: 2;
                 padding: 25px;
+            }
+
+            .acesso-container h1 {
+                font-size: 28px;
             }
         }
     </style>
 </head>
 
 <body>
-    <main class="acesso-container">
 
+    <main class="pagina-acesso">
+
+        <!-- Carrinho esquerdo -->
         <div class="ilustracao-carrinho">
             <svg viewBox="0 0 300 260"
                  xmlns="http://www.w3.org/2000/svg"
                  role="img"
-                 aria-label="Carrinho de compras verde">
+                 aria-label="Carrinho de compras">
 
                 <g fill="none"
-                   stroke="#15803d"
+                   stroke="#16a34a"
                    stroke-width="13"
                    stroke-linecap="round"
                    stroke-linejoin="round">
@@ -164,20 +212,24 @@
                     <path d="M100 95 H260"/>
                     <path d="M110 135 H250"/>
 
-                    <circle cx="110" cy="225" r="17" fill="#15803d"/>
-                    <circle cx="225" cy="225" r="17" fill="#15803d"/>
+                    <circle cx="110" cy="225" r="17" fill="#16a34a"/>
+                    <circle cx="225" cy="225" r="17" fill="#16a34a"/>
                 </g>
             </svg>
         </div>
 
-        <div class="conteudo-acesso">
+        <!-- Formulário central -->
+        <div class="acesso-container">
+
             <h1>Atacado Fácil</h1>
 
             <p class="subtitulo">
                 Gestão de compras, estoque e pedidos em um só lugar
             </p>
 
+            <!-- Login -->
             <form id="formLogin" class="formulario-acesso">
+
                 <h2>Entrar</h2>
 
                 <label for="loginEmail">E-mail</label>
@@ -197,9 +249,12 @@
                 >
 
                 <button type="submit">Entrar no sistema</button>
+
             </form>
 
+            <!-- Cadastro -->
             <form id="formCadastro" class="formulario-acesso oculto">
+
                 <h2>Criar conta</h2>
 
                 <label for="cadastroNome">Nome completo</label>
@@ -228,20 +283,50 @@
                 >
 
                 <button type="submit">Cadastrar</button>
+
             </form>
 
             <p id="mensagem" role="status" aria-live="polite"></p>
 
             <div class="alternar">
-                <span id="textoAlternar">Ainda não tem uma conta?</span>
+                <span id="textoAlternar">
+                    Ainda não tem uma conta?
+                </span>
+
                 <button type="button" id="botaoAlternar">
                     Criar conta
                 </button>
             </div>
+
+        </div>
+
+        <!-- Carrinho direito -->
+        <div class="ilustracao-carrinho">
+            <svg viewBox="0 0 300 260"
+                 xmlns="http://www.w3.org/2000/svg"
+                 role="img"
+                 aria-label="Carrinho de compras">
+
+                <g fill="none"
+                   stroke="#16a34a"
+                   stroke-width="13"
+                   stroke-linecap="round"
+                   stroke-linejoin="round">
+
+                    <path d="M20 25 H55 L85 175 H245 L275 65 H70"/>
+                    <path d="M85 175 L75 195 H250"/>
+                    <path d="M100 95 H260"/>
+                    <path d="M110 135 H250"/>
+
+                    <circle cx="110" cy="225" r="17" fill="#16a34a"/>
+                    <circle cx="225" cy="225" r="17" fill="#16a34a"/>
+                </g>
+            </svg>
         </div>
 
     </main>
 
     <script src="/js/login.js"></script>
+
 </body>
 </html>
