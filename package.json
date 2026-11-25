@@ -1,13 +1,14 @@
 {
   "name": "atacado-facil",
   "version": "1.0.0",
-  "description": "Sistema web de gestão de atacado",
+  "description": "Sistema web de gestao de atacado",
   "main": "server.js",
   "scripts": {
-  "start": "node server.js",
-  "dev": "node --watch server.js",
-  "seed": "node prisma/seed.js"
-},
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node prisma/seed.js",
+    "build": "prisma generate --config prisma.postgres.config.ts"
+  },
   "keywords": [
     "atacado",
     "gestao",
@@ -20,10 +21,12 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "express-session": "^1.19.0",
-    "multer": "^2.5.0"
+    "multer": "^2.5.0",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "prisma": "^6.19.3"

@@ -1,6 +1,9 @@
 # Dependências
 node_modules/
 
+# Cliente Prisma gerado automaticamente
+generated/
+
 # Variáveis de ambiente e segredos
 .env
 .env.*
