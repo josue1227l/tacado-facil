@@ -7,13 +7,48 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f1f5f1;
+        }
+
         .acesso-container {
-            max-width: 420px;
-            margin: 50px auto;
-            padding: 30px;
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .ilustracao-carrinho {
+            background: #f0fdf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px;
+        }
+
+        .ilustracao-carrinho svg {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+        }
+
+        .conteudo-acesso {
+            padding: 35px;
         }
 
         .acesso-container h1 {
@@ -34,6 +69,10 @@
             gap: 12px;
         }
 
+        .formulario-acesso h2 {
+            margin-bottom: 5px;
+        }
+
         .formulario-acesso label {
             font-weight: bold;
         }
@@ -43,6 +82,7 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 15px;
+            width: 100%;
         }
 
         .formulario-acesso button {
@@ -80,79 +120,126 @@
         }
 
         .oculto {
-            display: none;
+            display: none !important;
+        }
+
+        @media (max-width: 650px) {
+            .acesso-container {
+                max-width: 420px;
+                grid-template-columns: 1fr;
+            }
+
+            .ilustracao-carrinho {
+                padding: 20px;
+            }
+
+            .ilustracao-carrinho svg {
+                max-width: 130px;
+            }
+
+            .conteudo-acesso {
+                padding: 25px;
+            }
         }
     </style>
 </head>
 
 <body>
     <main class="acesso-container">
-        <h1>Atacado Fácil</h1>
-        <p class="subtitulo">Gestão de compras, estoque e pedidos em um só lugar</p>
 
-        <!-- Formulário de login -->
-        <form id="formLogin" class="formulario-acesso">
-            <h2>Entrar</h2>
+        <div class="ilustracao-carrinho">
+            <svg viewBox="0 0 300 260"
+                 xmlns="http://www.w3.org/2000/svg"
+                 role="img"
+                 aria-label="Carrinho de compras verde">
 
-            <label for="loginEmail">E-mail</label>
-            <input
-                type="email"
-                id="loginEmail"
-                required
-                placeholder="Digite seu e-mail"
-            >
+                <g fill="none"
+                   stroke="#15803d"
+                   stroke-width="13"
+                   stroke-linecap="round"
+                   stroke-linejoin="round">
 
-            <label for="loginSenha">Senha</label>
-            <input
-                type="password"
-                id="loginSenha"
-                required
-                placeholder="Digite sua senha"
-            >
+                    <path d="M20 25 H55 L85 175 H245 L275 65 H70"/>
+                    <path d="M85 175 L75 195 H250"/>
+                    <path d="M100 95 H260"/>
+                    <path d="M110 135 H250"/>
 
-            <button type="submit">Entrar no sistema</button>
-        </form>
-
-        <!-- Formulário de cadastro -->
-        <form id="formCadastro" class="formulario-acesso oculto">
-            <h2>Criar conta</h2>
-
-            <label for="cadastroNome">Nome completo</label>
-            <input
-                type="text"
-                id="cadastroNome"
-                required
-                placeholder="Digite seu nome"
-            >
-
-            <label for="cadastroEmail">E-mail</label>
-            <input
-                type="email"
-                id="cadastroEmail"
-                required
-                placeholder="Digite seu e-mail"
-            >
-
-            <label for="cadastroSenha">Senha</label>
-            <input
-                type="password"
-                id="cadastroSenha"
-                required
-                minlength="8"
-                placeholder="Mínimo de 8 caracteres"
-            >
-
-            <button type="submit">Cadastrar</button>
-        </form>
-
-        <p id="mensagem" role="status" aria-live="polite"></p>
-
-        <div class="alternar">
-            <span id="textoAlternar">Ainda não tem uma conta?</span>
-            <button type="button" id="botaoAlternar">
-                Criar conta
-            </button>
+                    <circle cx="110" cy="225" r="17" fill="#15803d"/>
+                    <circle cx="225" cy="225" r="17" fill="#15803d"/>
+                </g>
+            </svg>
         </div>
+
+        <div class="conteudo-acesso">
+            <h1>Atacado Fácil</h1>
+
+            <p class="subtitulo">
+                Gestão de compras, estoque e pedidos em um só lugar
+            </p>
+
+            <form id="formLogin" class="formulario-acesso">
+                <h2>Entrar</h2>
+
+                <label for="loginEmail">E-mail</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    required
+                    placeholder="Digite seu e-mail"
+                >
+
+                <label for="loginSenha">Senha</label>
+                <input
+                    type="password"
+                    id="loginSenha"
+                    required
+                    placeholder="Digite sua senha"
+                >
+
+                <button type="submit">Entrar no sistema</button>
+            </form>
+
+            <form id="formCadastro" class="formulario-acesso oculto">
+                <h2>Criar conta</h2>
+
+                <label for="cadastroNome">Nome completo</label>
+                <input
+                    type="text"
+                    id="cadastroNome"
+                    required
+                    placeholder="Digite seu nome"
+                >
+
+                <label for="cadastroEmail">E-mail</label>
+                <input
+                    type="email"
+                    id="cadastroEmail"
+                    required
+                    placeholder="Digite seu e-mail"
+                >
+
+                <label for="cadastroSenha">Senha</label>
+                <input
+                    type="password"
+                    id="cadastroSenha"
+                    required
+                    minlength="8"
+                    placeholder="Mínimo de 8 caracteres"
+                >
+
+                <button type="submit">Cadastrar</button>
+            </form>
+
+            <p id="mensagem" role="status" aria-live="polite"></p>
+
+            <div class="alternar">
+                <span id="textoAlternar">Ainda não tem uma conta?</span>
+                <button type="button" id="botaoAlternar">
+                    Criar conta
+                </button>
+            </div>
+        </div>
+
     </main>
 
     <script src="/js/login.js"></script>
